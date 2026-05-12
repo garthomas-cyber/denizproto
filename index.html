@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Gemini Discovery: The Seamless Voyage (Final)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Google+Sans:wght@400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
@@ -16,15 +16,15 @@
       --on-surface: #000000;
       --accent: #4fa0ff;
       --accent-glow: rgba(79, 160, 255, 0.3);
-      --screen-width: 402px; 
-      --bezel-width: 8px;
-      --phone-width: 418px; 
-      --phone-height: 932px;
-      --border-radius: 54px;
+      --screen-width: 100vw; 
+      --bezel-width: 0px;
+      --phone-width: 100vw; 
+      --phone-height: 100vh;
+      --border-radius: 0px;
     }
 
     body {
-      background-color: #F0F0F0;
+      background-color: #FFFFFF;
       color: #000;
       font-family: 'Inter', sans-serif;
       display: flex;
@@ -36,50 +36,26 @@
     }
 
     .phone-container {
-      width: var(--phone-width);
-      height: var(--phone-height);
-      background-color: #000;
-      border: var(--bezel-width) solid #3a3a3a;
-      border-radius: var(--border-radius);
+      width: 100vw;
+      height: 100vh;
+      background-color: #FFF;
       position: relative;
-      box-shadow: 0 50px 100px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.1), 0 0 40px rgba(0, 0, 0, 0.05);
-      overflow: visible;
-      transform: scale(0.9);
-      background: linear-gradient(135deg, #111, #000);
+      overflow: hidden;
+      background: #FFF;
     }
 
-    .btn-side { position: absolute; background: #2a2a2a; border-radius: 2px; z-index: -1; border: 1px solid rgba(255,255,255,0.05); }
-    .btn-action { left: -11px; top: 160px; width: 3px; height: 32px; }
-    .btn-vol-up { left: -11px; top: 210px; width: 3px; height: 64px; }
-    .btn-vol-down { left: -11px; top: 290px; width: 3px; height: 64px; }
-    .btn-power { right: -11px; top: 210px; width: 3px; height: 96px; }
-    .btn-camera { right: -11px; top: 580px; width: 3px; height: 72px; background: #222; }
-
+    .btn-side { display: none; }
+    
     .phone-notch {
-      position: absolute;
-      top: 13px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 112px;
-      height: 33px;
-      background-color: #000;
-      border-radius: 22px;
-      z-index: 100;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-right: 12px;
+      display: none;
     }
-    .notch-lens { width: 12px; height: 12px; background: radial-gradient(circle at center, #1a1a2a 0%, #000 70%); border-radius: 50%; box-shadow: inset 0 0 2px rgba(79, 160, 255, 0.2); }
 
     .phone-screen {
-      width: var(--screen-width);
+      width: 100%;
       height: 100%;
       background-color: #FFF;
       position: relative;
       overflow: hidden;
-      border-radius: calc(var(--border-radius) - 12px);
     }
 
     .layer {
@@ -93,10 +69,11 @@
       opacity: 0;
       filter: blur(20px);
       transform-origin: 0 0;
+      touch-action: auto;
     }
     .layer.active { opacity: 1; pointer-events: auto; filter: blur(0); }
 
-    #canvas-container { background-color: #FFFFFF; cursor: grab; z-index: 10; transform-origin: 0 0; will-change: transform; }
+    #canvas-container { background-color: #FFFFFF; cursor: grab; z-index: 10; transform-origin: 0 0; will-change: transform; touch-action: none; }
     #canvas-container:active { cursor: grabbing; }
 
     #grid-background {
@@ -125,7 +102,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 42px;
+      padding: 0 20px;
       font-size: 17px;
       font-weight: 700;
       z-index: 110;
@@ -139,17 +116,18 @@
 
     #chat-bar-container {
       position: absolute;
-      bottom: 56px;
+      bottom: 40px;
       left: 50%;
       transform: translateX(-50%);
-      width: 290px;
-      height: 80px;
+      width: calc(100% - 40px);
+      max-width: 360px;
+      height: 64px;
       z-index: 120;
     }
     #chat-bar-glow {
       position: absolute;
       inset: 0;
-      border-radius: 40px;
+      border-radius: 32px;
       border: 6px solid #A2D4FF;
       filter: blur(16px);
       background: rgba(162, 212, 255, 0.05);
@@ -160,7 +138,7 @@
       inset: 0;
       background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(20px);
-      border-radius: 40px;
+      border-radius: 32px;
       border: 1px solid rgba(0, 0, 0, 0.05);
       display: flex;
       align-items: center;
@@ -168,10 +146,10 @@
     }
     #chat-bar-label {
       position: absolute;
-      left: 68px;
+      left: 56px;
       color: #000;
       font-family: sans-serif;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 300;
       line-height: 24px;
       pointer-events: none;
@@ -183,18 +161,18 @@
       outline: none;
       width: 100%;
       height: 48px;
-      padding-left: 68px;
-      padding-right: 100px;
+      padding-left: 56px;
+      padding-right: 90px;
       font-family: sans-serif;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 300;
     }
     #search-icons-group { position: absolute; right: 0; top: 0; height: 100%; display: flex; align-items: center; }
-    #search-trigger { position: absolute; right: 13px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    #search-trigger { position: absolute; right: 8px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     #search-trigger svg circle { stroke: #000 !important; }
-    #mic-icon { position: absolute; right: 66px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    #mic-icon { position: absolute; right: 54px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     #mic-icon svg rect, #mic-icon svg path { stroke: #000 !important; }
-    #chat-plus-icon { position: absolute; left: 31px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
+    #chat-plus-icon { position: absolute; left: 24px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
     #chat-plus-icon svg path { stroke: #000 !important; }
 
     #mix-btn {
@@ -379,8 +357,8 @@
 
     <div class="phone-screen">
       <div id="announcer" class="sr-only" aria-live="polite"></div>
-      <div id="l0-layer" class="layer active bg-white">
-        <div id="l0-gradient" style="position: absolute; bottom: 56px; left: 0; width: 402px; height: 450px; background: radial-gradient(96.77% 100% at 50% 0%, rgba(157, 210, 255, 0.00) 0%, rgba(157, 210, 255, 0.00) 47%, rgba(157, 210, 255, 0.17) 61.22%, rgba(157, 210, 255, 0.37) 74.44%, rgba(157, 210, 255, 0.76) 88%, #9DD2FF 100%); pointer-events: none;"></div>
+      <div id="l0-layer" class="layer active bg-white" style="overflow-y: auto; pointer-events: auto;">
+        <div id="l0-gradient" style="position: absolute; bottom: 56px; left: 0; width: 100%; height: 50vh; background: radial-gradient(96.77% 100% at 50% 0%, rgba(157, 210, 255, 0.00) 0%, rgba(157, 210, 255, 0.00) 47%, rgba(157, 210, 255, 0.17) 61.22%, rgba(157, 210, 255, 0.37) 74.44%, rgba(157, 210, 255, 0.76) 88%, #9DD2FF 100%); pointer-events: none;"></div>
         <div id="l0-footer-accent" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 56px; background: #9DD2FF;"></div>
         <div id="toolbar-header">
           <div id="apple-toolbar-circle">
@@ -411,7 +389,7 @@
           </div>
         </div>
 
-        <div id="l0-middle-content" style="position: absolute; top: 388px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; width: 100%;">
+        <div id="l0-middle-content" style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; width: 100%;">
           <div id="gemini-logo-container" style="display: flex; width: 40px; height: 40px; justify-content: center; align-items: center; flex-shrink: 0; margin-bottom: 12px;">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
               <path d="M34.5238 18.035C31.6666 16.805 29.1666 15.1176 27.0228 12.9749C24.8801 10.8322 23.1928 8.33119 21.9628 5.47392C21.4906 4.37886 21.1112 3.25323 20.8203 2.09915C20.7254 1.72183 20.3871 1.45624 19.9982 1.45624C19.6093 1.45624 19.271 1.72183 19.1761 2.09915C18.8852 3.25323 18.5058 4.3778 18.0336 5.47392C16.8037 8.33119 15.1163 10.8322 12.9736 12.9749C10.8309 15.1176 8.32987 16.805 5.47259 18.035C4.37753 18.5071 3.25191 18.8866 2.09782 19.1775C1.72051 19.2723 1.45491 19.6106 1.45491 19.9995C1.45491 20.3885 1.72051 20.7268 2.09782 20.8216C3.25191 21.1125 4.37648 21.4919 5.47259 21.9641C8.32987 23.1941 10.8299 24.8815 12.9736 27.0242C15.1173 29.1669 16.8037 31.6679 18.0336 34.5252C18.5058 35.6202 18.8852 36.7459 19.1761 37.8999C19.271 38.2773 19.6093 38.5429 19.9982 38.5429C20.3871 38.5429 20.7254 38.2773 20.8203 37.8999C21.1112 36.7459 21.4906 35.6213 21.9628 34.5252C23.1928 31.6679 24.8801 29.1679 27.0228 27.0242C29.1655 24.8815 31.6666 23.1941 34.5238 21.9641C35.6189 21.4919 36.7445 21.1125 37.8986 20.8216C38.2759 20.7268 38.5415 20.3885 38.5415 19.9995C38.5415 19.6106 38.2759 19.2723 37.8986 19.1775C36.7445 18.8866 35.62 18.5071 34.5238 18.035Z" fill="white"/>
@@ -611,7 +589,7 @@
   </div>
 
   <script>
-    const state = { products: [], selectedIds: [], zoom: 0.3, panX: 0, panY: 0, isPanning: false, isTransitioning: false, activeLayer: 'L0', reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches, gridCols: 30, gridRows: 50 };
+    const state = { products: [], selectedIds: [], zoom: 0.3, panX: 0, panY: 0, isPanning: false, hasMoved: false, isTransitioning: false, activeLayer: 'L0', reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches, gridCols: 30, gridRows: 50 };
     const searchInput = document.getElementById('search-input'), searchBtn = document.getElementById('search-trigger'), l0Layer = document.getElementById('l0-layer'), loadingLayer = document.getElementById('loading-layer'), l1Layer = document.getElementById('canvas-container'), l1Cards = document.getElementById('l1-cards-layer'), gridBg = document.getElementById('grid-background'), l2Layer = document.getElementById('detail-page'), l2Grid = document.getElementById('l2-grid'), l3Layer = document.getElementById('product-detail-page'), l3Carousel = document.getElementById('pdp-carousel-wrap'), mixBtn = document.getElementById('mix-btn'), chatLabel = document.getElementById('chat-bar-label'), plusBtn = document.getElementById('chat-plus-icon'), announcer = document.getElementById('announcer');
     const expandBottom = document.getElementById('expand-bottom');
 
@@ -695,10 +673,55 @@
         const card = document.createElement('div'); card.className = 'product-card-l1 border border-black/5 rounded-[40px] overflow-hidden shadow-2xl hover:z-50 cursor-pointer'; card.style.cssText = `width:${p.w}px; height:${p.h}px; left:${p.x}px; top:${p.y}px;`;
         card.innerHTML = `<img src="${p.img}" class="w-full h-full object-cover transition-all duration-700">`;
         let pressTimer;
-        const startPress = () => { if (state.activeLayer !== 'L1') return; card.style.transitionDuration = '1000ms'; card.style.boxShadow = '0 0 0 8px var(--accent), 0 0 30px var(--accent-glow)'; card.style.borderColor = 'var(--accent)'; pressTimer = setTimeout(() => { triggerSimilarityWave(p); card.style.transitionDuration = '200ms'; if (!state.selectedIds.includes(p.id)) { card.style.boxShadow = 'none'; card.style.borderColor = 'rgba(0,0,0,0.05)'; } else { card.style.boxShadow = '0 0 0 2px var(--accent), 0 0 20px var(--accent-glow)'; } }, 1000); };
-        const cancelPress = () => { clearTimeout(pressTimer); card.style.transitionDuration = '200ms'; if (!state.selectedIds.includes(p.id)) { card.style.boxShadow = 'none'; card.style.borderColor = 'rgba(0,0,0,0.05)'; } else { card.style.boxShadow = '0 0 0 2px var(--accent), 0 0 20px var(--accent-glow)'; card.style.borderColor = 'var(--accent)'; } };
-        card.onmousedown = startPress; card.onmouseup = cancelPress; card.onmouseleave = cancelPress; card.ontouchstart = startPress; card.ontouchend = cancelPress;
-        card.onclick = (e) => { e.stopPropagation(); const idx = state.selectedIds.indexOf(p.id); if (idx > -1) { state.selectedIds.splice(idx, 1); card.style.borderColor = 'rgba(0,0,0,0.05)'; card.style.boxShadow = 'none'; } else if (state.selectedIds.length < 2) { state.selectedIds.push(p.id); card.style.borderColor = 'var(--accent)'; card.style.boxShadow = '0 0 0 2px var(--accent), 0 0 20px var(--accent-glow)'; } if (state.selectedIds.length === 2) mixBtn.classList.add('visible'); else mixBtn.classList.remove('visible'); };
+        const startPress = (e) => { 
+          if (state.activeLayer !== 'L1') return; 
+          if (e.touches && e.touches.length > 1) { cancelPress(); return; }
+          card.style.transitionDuration = '1000ms'; 
+          card.style.boxShadow = '0 0 0 8px var(--accent), 0 0 30px var(--accent-glow)'; 
+          card.style.borderColor = 'var(--accent)'; 
+          pressTimer = setTimeout(() => { 
+            triggerSimilarityWave(p); 
+            card.style.transitionDuration = '200ms'; 
+            if (!state.selectedIds.includes(p.id)) { 
+              card.style.boxShadow = 'none'; 
+              card.style.borderColor = 'rgba(0,0,0,0.05)'; 
+            } else { 
+              card.style.boxShadow = '0 0 0 2px var(--accent), 0 0 20px var(--accent-glow)'; 
+            } 
+          }, 1000); 
+        };
+        const cancelPress = () => { 
+          clearTimeout(pressTimer); 
+          card.style.transitionDuration = '200ms'; 
+          if (!state.selectedIds.includes(p.id)) { 
+            card.style.boxShadow = 'none'; 
+            card.style.borderColor = 'rgba(0,0,0,0.05)'; 
+          } else { 
+            card.style.boxShadow = '0 0 0 2px var(--accent), 0 0 20px var(--accent-glow)'; 
+            card.style.borderColor = 'var(--accent)'; 
+          } 
+        };
+        card.onmousedown = startPress; card.onmouseup = cancelPress; card.onmouseleave = cancelPress; 
+        card.addEventListener('touchstart', startPress, {passive: true});
+        card.addEventListener('touchend', cancelPress, {passive: true});
+        card.addEventListener('touchmove', cancelPress, {passive: true});
+        
+        card.onclick = (e) => { 
+          e.stopPropagation(); 
+          if (state.hasMoved) return;
+          const idx = state.selectedIds.indexOf(p.id); 
+          if (idx > -1) { 
+            state.selectedIds.splice(idx, 1); 
+            card.style.borderColor = 'rgba(0,0,0,0.05)'; 
+            card.style.boxShadow = 'none'; 
+          } else if (state.selectedIds.length < 2) { 
+            state.selectedIds.push(p.id); 
+            card.style.borderColor = 'var(--accent)'; 
+            card.style.boxShadow = '0 0 0 2px var(--accent), 0 0 20px var(--accent-glow)'; 
+          } 
+          if (state.selectedIds.length === 2) mixBtn.classList.add('visible'); 
+          else mixBtn.classList.remove('visible'); 
+        };
         l1Cards.appendChild(card);
       });
 
@@ -709,10 +732,10 @@
     }
 
     function renderL2(products) {
-      l2Grid.innerHTML = ''; l2Grid.className = 'flex gap-[4px] px-[5px]'; 
+      l2Grid.innerHTML = ''; l2Grid.className = 'flex gap-3 px-3 w-full'; 
       const col1 = document.createElement('div'), col2 = document.createElement('div'); 
-      col1.className = 'flex flex-col gap-5'; col1.style.width = '194px';
-      col2.className = 'flex flex-col gap-5'; col2.style.width = '194px';
+      col1.className = 'flex flex-col gap-5 flex-1';
+      col2.className = 'flex flex-col gap-5 flex-1';
       l2Grid.appendChild(col1); l2Grid.appendChild(col2);
 
       products.forEach((p, i) => {
@@ -725,9 +748,9 @@
         const reviews = (Math.random() * 5).toFixed(1) + 'k';
 
         item.innerHTML = `
-          <div style="height:${h}px; width:194px; position:relative;" class="rounded-[40px] overflow-hidden border border-black/5 shadow-sm transition-transform group-hover:scale-[1.01]">
+          <div style="height:${h}px; width:100%; position:relative;" class="rounded-[40px] overflow-hidden border border-black/5 shadow-sm transition-transform group-hover:scale-[1.01]">
             <img src="${p.img}" class="w-full h-full object-cover">
-            <div style="position:absolute; left: 72px; bottom:0; height: 30px; display: flex; align-items: flex-end; gap: 4px;">
+            <div style="position:absolute; left: 50%; transform: translateX(-50%); bottom:0; height: 30px; display: flex; align-items: flex-end; gap: 4px;">
                <div style="margin-bottom: 10px;"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="5.5" fill="#636363"/></svg></div>
                <div style="margin-bottom: 12.5px; display: flex; gap: 4px;">
                  <svg width="6" height="6" viewBox="0 0 6 6" fill="none"><circle cx="3" cy="3" r="3" fill="#D9D9D9"/></svg>
@@ -780,7 +803,7 @@
     }
 
     function updateTransform() {
-      const sw = 402, sh = 932, cw = state.contentWidth, ch = state.contentHeight, m = 0;
+      const sw = window.innerWidth, sh = window.innerHeight, cw = state.contentWidth, ch = state.contentHeight, m = 0;
       state.panX = Math.min(m, Math.max(state.panX, sw - (cw * state.zoom) - m)); state.panY = Math.min(m, Math.max(state.panY, sh - (ch * state.zoom) - m));
       l1Layer.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
 
@@ -794,36 +817,174 @@
       }
     }
 
-    let startX, startY; l1Layer.onmousedown = (e) => { if (state.activeLayer !== 'L1') return; state.isPanning = true; startX = e.clientX - state.panX; startY = e.clientY - state.panY; };
-    window.onmousemove = (e) => { if (!state.isPanning) return; state.panX = e.clientX - startX; state.panY = e.clientY - startY; requestAnimationFrame(updateTransform); };
+    let lastTouchDistance = 0;
+    let touchStartX, touchStartY;
+    let initialTouchX, initialTouchY;
+
+    l1Layer.addEventListener('touchstart', (e) => {
+      if (state.activeLayer !== 'L1' || state.isTransitioning) return;
+      if (e.touches.length === 1) {
+        state.isPanning = true;
+        state.hasMoved = false;
+        initialTouchX = e.touches[0].clientX;
+        initialTouchY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX - state.panX;
+        touchStartY = e.touches[0].clientY - state.panY;
+      } else if (e.touches.length === 2) {
+        state.isPanning = false;
+        lastTouchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: false });
+
+    l1Layer.addEventListener('touchmove', (e) => {
+      if (state.activeLayer !== 'L1' || state.isTransitioning) return;
+      e.preventDefault();
+
+      if (e.touches.length === 1 && state.isPanning) {
+        const dx = e.touches[0].clientX - initialTouchX;
+        const dy = e.touches[0].clientY - initialTouchY;
+        if (Math.hypot(dx, dy) > 10) state.hasMoved = true;
+
+        state.panX = e.touches[0].clientX - touchStartX;
+        state.panY = e.touches[0].clientY - touchStartY;
+        requestAnimationFrame(updateTransform);
+      } else if (e.touches.length === 2) {
+        const distance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        
+        const rect = document.querySelector('.phone-screen').getBoundingClientRect();
+        const mx = centerX - rect.left;
+        const my = centerY - rect.top;
+
+        if (lastTouchDistance > 0) {
+          const ratio = distance / lastTouchDistance;
+          const oz = state.zoom;
+          state.zoom = Math.max(0.36, Math.min(3.0, state.zoom * ratio));
+          state.panX = mx - (mx - state.panX) * (state.zoom / oz);
+          state.panY = my - (my - state.panY) * (state.zoom / oz);
+          
+          if (state.zoom >= 1.2 && !state.isTransitioning) {
+            const wx = (mx - state.panX) / state.zoom, wy = (my - state.panY) / state.zoom;
+            const target = state.products.find(p => wx >= p.x && wx <= p.x + p.w && wy >= p.y && wy <= p.y + p.h);
+            if (target) showL2(target);
+          }
+        }
+        lastTouchDistance = distance;
+        requestAnimationFrame(updateTransform);
+      }
+    }, { passive: false });
+
+    l1Layer.addEventListener('touchend', () => {
+      state.isPanning = false;
+      lastTouchDistance = 0;
+    });
+
+    // Keep mouse/wheel for desktop but simplify
+    l1Layer.onmousedown = (e) => { if (state.activeLayer !== 'L1') return; state.isPanning = true; touchStartX = e.clientX - state.panX; touchStartY = e.clientY - state.panY; };
+    window.onmousemove = (e) => { if (!state.isPanning) return; state.panX = e.clientX - touchStartX; state.panY = e.clientY - touchStartY; requestAnimationFrame(updateTransform); };
     window.onmouseup = () => state.isPanning = false;
 
     l1Layer.onwheel = (e) => {
       if (state.activeLayer !== 'L1') return; e.preventDefault();
-      const rect = document.querySelector('.phone-screen').getBoundingClientRect(), scale = rect.width / 402, mx = (e.clientX - rect.left) / scale, my = (e.clientY - rect.top) / scale;
+      const rect = document.querySelector('.phone-screen').getBoundingClientRect(), mx = e.clientX - rect.left, my = e.clientY - rect.top;
       if (e.ctrlKey) {
         const oz = state.zoom; 
-        // 0.36 is now the MINIMUM zoom (no more bird eye view)
-        // 3.0 is the MAXIMUM zoom (see closely)
         state.zoom = Math.max(0.36, Math.min(3.0, state.zoom - e.deltaY * 0.005));
         state.panX = mx - (mx - state.panX) * (state.zoom / oz); state.panY = my - (my - state.panY) * (state.zoom / oz);
-        
-        // Trigger L2 when user "leans in" beyond 0.8
-        if (state.zoom >= 0.8 && !state.isTransitioning) {
+        if (state.zoom >= 1.2 && !state.isTransitioning) {
           const wx = (mx - state.panX) / state.zoom, wy = (my - state.panY) / state.zoom;
           showL2(state.products.find(p => wx >= p.x && wx <= p.x + p.w && wy >= p.y && wy <= p.y + p.h));
         }
-      } else { state.panX -= e.deltaX / scale; state.panY -= e.deltaY / scale; }
+      } else { state.panX -= e.deltaX; state.panY -= e.deltaY; }
       requestAnimationFrame(updateTransform);
     };
+
+    l2Layer.addEventListener('touchstart', (e) => {
+      if (state.activeLayer !== 'L2' || state.isTransitioning) return;
+      if (e.touches.length === 2) {
+        lastTouchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    l2Layer.addEventListener('touchmove', (e) => {
+      if (state.activeLayer !== 'L2' || state.isTransitioning) return;
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const distance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        if (lastTouchDistance > 0) {
+          const ratio = distance / lastTouchDistance;
+          if (ratio < 0.7) { 
+            hideL2();
+            lastTouchDistance = 0;
+          } else if (ratio > 1.4) { 
+             const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+             const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+             const rect = l2Layer.getBoundingClientRect();
+             const mx = centerX - rect.left;
+             const my = centerY - rect.top + l2Layer.scrollTop;
+             const focused = Array.from(l2Grid.querySelectorAll('[data-id]')).find(item => {
+               const r = item.getBoundingClientRect();
+               const ry = r.top - rect.top + l2Layer.scrollTop;
+               const rx = r.left - rect.left;
+               return mx >= rx && mx <= rx + r.width && my >= ry && my <= ry + r.height;
+             });
+             if (focused) {
+               showL3(state.products.find(p => p.id === parseInt(focused.getAttribute('data-id'))));
+               lastTouchDistance = 0;
+             }
+          }
+        }
+      }
+    }, { passive: false });
+
+    l3Layer.addEventListener('touchstart', (e) => {
+      if (state.activeLayer !== 'L3' || state.isTransitioning) return;
+      if (e.touches.length === 2) {
+        lastTouchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    l3Layer.addEventListener('touchmove', (e) => {
+      if (state.activeLayer !== 'L3' || state.isTransitioning) return;
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const distance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        if (lastTouchDistance > 0) {
+          const ratio = distance / lastTouchDistance;
+          if (ratio < 0.7) { 
+            hideL3();
+            lastTouchDistance = 0;
+          }
+        }
+      }
+    }, { passive: false });
 
     l2Layer.onwheel = (e) => {
       if (state.activeLayer !== 'L2') return;
       if (e.ctrlKey) {
         e.preventDefault(); if (e.deltaY > 0) hideL2();
         else if (e.deltaY < 0) {
-          const rect = l2Layer.getBoundingClientRect(), scale = rect.width / 402, mx = (e.clientX - rect.left) / scale, my = (e.clientY - rect.top) / scale + l2Layer.scrollTop;
-          const focused = Array.from(l2Grid.querySelectorAll('[data-id]')).find(item => { const r = item.getBoundingClientRect(); const ry = (r.top - rect.top) / scale + l2Layer.scrollTop, rx = (r.left - rect.left) / scale; return mx >= rx && mx <= rx + (r.width / scale) && my >= ry && my <= ry + (r.height / scale); });
+          const rect = l2Layer.getBoundingClientRect(), mx = e.clientX - rect.left, my = e.clientY - rect.top + l2Layer.scrollTop;
+          const focused = Array.from(l2Grid.querySelectorAll('[data-id]')).find(item => { const r = item.getBoundingClientRect(); const ry = r.top - rect.top + l2Layer.scrollTop, rx = r.left - rect.left; return mx >= rx && mx <= rx + r.width && my >= ry && my <= ry + r.height; });
           showL3(state.products.find(p => p.id === (focused ? parseInt(focused.getAttribute('data-id')) : 0)));
         }
       }
@@ -842,9 +1003,9 @@
     function hideL3() { if (state.isTransitioning) return; state.isTransitioning = true; state.activeLayer = 'L2'; l3Layer.classList.remove('active'); setTimeout(() => state.isTransitioning = false, 600); }
 
     function centerCamera() {
-      // Force extreme values so updateTransform centers it
-      state.panX = -99999;
-      state.panY = -99999;
+      const sw = window.innerWidth, sh = window.innerHeight;
+      state.panX = (sw - (state.contentWidth * state.zoom)) / 2;
+      state.panY = (sh - (state.contentHeight * state.zoom)) / 2;
     }
 
     function showL1() {
@@ -857,10 +1018,10 @@
 
       setTimeout(() => {
         // Phase 2: Reveal Results (L1)
-        state.gridCols = 30; state.gridRows = 50;
-        state.products = generateProducts(searchInput.value || 'Vision', 400);
+        state.gridCols = 15; state.gridRows = 25;
+        state.products = generateProducts(searchInput.value || 'Vision', 100);
         renderL1();
-        state.zoom = 0.36;
+        state.zoom = 0.5;
         centerCamera();
         updateTransform();
         
@@ -877,14 +1038,18 @@
     searchBtn.onclick = () => {
       if (state.activeLayer === 'L0') showL1();
       else {
-        state.gridCols = 30; state.gridRows = 50;
-        state.products = generateProducts(searchInput.value || 'Vision', 400);
+        state.gridCols = 15; state.gridRows = 25;
+        state.products = generateProducts(searchInput.value || 'Vision', 100);
         renderL1();
-        state.zoom = 0.36;
+        state.zoom = 0.5;
         centerCamera();
         updateTransform();
       }
     };
+    searchBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      searchBtn.onclick();
+    }, {passive: false});
   </script>
 </body>
 </html>
