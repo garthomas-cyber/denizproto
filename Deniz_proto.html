@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Gemini Discovery: The Seamless Voyage (Final)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Google+Sans:wght@400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box !important; }
+    
+    :root {
+      --surface: #FFFFFF;
+      --surface-bright: #F5F5F5;
+      --surface-dim: #FFFFFF;
+      --on-surface: #000000;
+      --accent: #4fa0ff;
+      --accent-glow: rgba(79, 160, 255, 0.3);
+      --screen-width: 100vw; 
+      --bezel-width: 0px;
+      --phone-width: 100vw; 
+      --phone-height: 100vh;
+      --border-radius: 0px;
+    }
+
+    body {
+      background-color: #FFFFFF;
+      color: #000;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .phone-container {
+      width: 100vw;
+      height: 100vh;
+      background-color: #FFF;
+      position: relative;
+      overflow: hidden;
+      background: #FFF;
+    }
+
+    .btn-side { display: none; }
+    
+    .phone-notch {
+      display: none;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background-color: #FFF;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.6s ease;
+      pointer-events: none;
+      opacity: 0;
+      filter: blur(20px);
+      transform-origin: 0 0;
+      touch-action: auto;
+    }
+    .layer.active { opacity: 1; pointer-events: auto; filter: blur(0); }
+
+    #canvas-container { background-color: #FFFFFF; cursor: grab; z-index: 10; transform-origin: 0 0; will-change: transform; touch-action: none; }
+    #canvas-container:active { cursor: grabbing; }
+
+    #grid-background {
+      position: absolute;
+      width: 20000px;
+      height: 20000px;
+      background-image: radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+      transform-origin: 0 0;
+      opacity: 0.3;
+      will-change: transform;
+    }
+    #l1-cards-layer { transform-origin: 0 0; position: absolute; will-change: transform; }
+
+    #detail-page { background-color: #FFF; z-index: 20; overflow-y: auto; overflow-x: hidden; padding: 100px 0 120px; }
+    #detail-page::-webkit-scrollbar { width: 0; }
+    #product-detail-page { background-color: #FFF; z-index: 30; overflow-x: auto; scroll-snap-type: x mandatory; }
+    #product-detail-page::-webkit-scrollbar { width: 0; }
+
+    .status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 54px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 17px;
+      font-weight: 700;
+      z-index: 110;
+      color: #000;
+      letter-spacing: -0.01em;
+    }
+    .status-icons { display: flex; align-items: center; gap: 8px; }
+    .status-icons svg path, .status-icons svg rect { fill: #000 !important; stroke: #000 !important; }
+    .status-icons svg rect[opacity="0.35"] { stroke: #000 !important; opacity: 0.2 !important; }
+    .status-icons svg path[opacity="0.4"] { fill: #000 !important; opacity: 0.2 !important; }
+
+    #chat-bar-container {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 360px;
+      height: 64px;
+      z-index: 120;
+    }
+    #chat-bar-glow {
+      position: absolute;
+      inset: 0;
+      border-radius: 32px;
+      border: 6px solid #A2D4FF;
+      filter: blur(16px);
+      background: rgba(162, 212, 255, 0.05);
+      pointer-events: none;
+    }
+    #chat-bar {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      border-radius: 32px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      padding: 0;
+    }
+    #chat-bar-label {
+      position: absolute;
+      left: 56px;
+      color: #000;
+      font-family: sans-serif;
+      font-size: 18px;
+      font-weight: 300;
+      line-height: 24px;
+      pointer-events: none;
+    }
+    #chat-bar input {
+      background: transparent;
+      border: none;
+      color: #000;
+      outline: none;
+      width: 100%;
+      height: 48px;
+      padding-left: 56px;
+      padding-right: 90px;
+      font-family: sans-serif;
+      font-size: 18px;
+      font-weight: 300;
+    }
+    #search-icons-group { position: absolute; right: 0; top: 0; height: 100%; display: flex; align-items: center; }
+    #search-trigger { position: absolute; right: 8px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    #search-trigger svg circle { stroke: #000 !important; }
+    #mic-icon { position: absolute; right: 54px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    #mic-icon svg rect, #mic-icon svg path { stroke: #000 !important; }
+    #chat-plus-icon { position: absolute; left: 24px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
+    #chat-plus-icon svg path { stroke: #000 !important; }
+
+    #mix-btn {
+      position: absolute;
+      bottom: 156px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #000;
+      color: #FFF;
+      font-weight: 800;
+      padding: 12px 32px;
+      border-radius: 20px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      z-index: 121;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #mix-btn.visible { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+
+    .product-card-l1 {
+      position: absolute;
+      background: #F5F5F5;
+      transition: opacity 0.3s ease, border-color 0.3s ease, box-shadow 0.2s ease;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    #toolbar-header {
+      position: absolute;
+      left: 16px;
+      top: 62px;
+      display: flex;
+      align-items: center;
+      z-index: 900;
+    }
+
+    #apple-toolbar-circle {
+      width: 44px;
+      height: 44px;
+      background: rgba(253, 252, 252, 0.4);
+      backdrop-filter: blur(20px);
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+    }
+
+    .menu-icon-svg {
+      width: 18px;
+      height: 8px;
+    }
+
+    .gemini-title {
+      margin-left: 12px;
+      color: #000;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 24px;
+    }
+
+    .gemini-version {
+      margin-left: 4px;
+      color: rgba(0, 0, 0, 0.55);
+      font-family: 'Google Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 24px;
+    }
+
+    .chevron-down {
+      margin-left: 4px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #right-toolbar-box {
+      position: absolute;
+      right: 16px;
+      top: 62px;
+      width: 88px;
+      height: 44px;
+      background: rgba(253, 252, 252, 0.4);
+      backdrop-filter: blur(20px);
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+    }
+
+    #right-box-svg {
+      margin-left: -4px;
+    }
+
+    #right-box-dots {
+      margin-left: 12px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .luminous-dot {
+      width: 4px;
+      height: 4px;
+      background-color: #000;
+      border-radius: 50%;
+      opacity: 0.8;
+    }
+
+    #loading-layer {
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 850;
+    }
+
+    @keyframes logo-pulse {
+      0% { transform: scale(1); opacity: 1; filter: blur(0px); }
+      50% { transform: scale(1.1); opacity: 0.7; filter: blur(2px); }
+      100% { transform: scale(1); opacity: 1; filter: blur(0px); }
+    }
+
+    .pulse-animation {
+      animation: logo-pulse 1.5s ease-in-out infinite;
+    }
+
+    .expand-btn {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #000;
+      z-index: 130;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      cursor: pointer;
+    }
+    .expand-btn.visible { opacity: 1; pointer-events: auto; }
+    #expand-bottom { bottom: 150px; left: 50%; transform: translateX(-50%) translateY(10px); }
+    
+    #expand-bottom.visible { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <div class="phone-container">
+    <div class="btn-side btn-action"></div>
+    <div class="btn-side btn-vol-up"></div>
+    <div class="btn-side btn-vol-down"></div>
+    <div class="btn-side btn-power"></div>
+    <div class="btn-side btn-camera"></div>
+    
+    <div class="phone-notch"><div class="notch-lens"></div></div>
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-icons">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="13" viewBox="0 0 20 13" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M19.2 1.14623C19.2 0.513183 18.7224 0H18.1333C18.7224 0 16 0.513183 16 1.14623V11.0802C16 11.7132 16.4776 12.2264 17.0667 12.2264H18.1333C18.7224 12.2264 19.2 11.7132 19.2 11.0802V1.14623ZM11.7659 2.44528H12.8326C13.4217 2.44528 13.8992 2.97078 13.8992 3.61902V11.0527C13.8992 11.7009 13.4217 12.2264 12.8326 12.2264H11.7659C11.1768 12.2264 10.6992 11.7009 10.6992 11.0527V3.61902C10.6992 2.97078 11.1768 2.44528 11.7659 2.44528ZM7.43411 5.09433H6.36745C5.77834 5.09433 5.30078 5.62652 5.30078 6.28301V11.0377C5.30078 11.6942 5.77834 12.2264 6.36745 12.2264H7.43411C8.02322 12.2264 8.50078 11.6942 8.50078 11.0377V6.28301C8.50078 5.62652 8.02322 5.09433 7.43411 5.09433ZM2.13333 7.53962H1.06667C0.477563 7.53962 0 8.06421 0 8.71132V11.0547C0 11.7018 0.477563 12.2264 1.06667 12.2264H2.13333C2.72244 12.2264 3.2 11.7018 3.2 11.0547V8.71132C3.2 8.06421 2.72244 7.53962 2.13333 7.53962Z" fill="white"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="13" viewBox="0 0 18 13" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.5713 2.46628C11.0584 2.46639 13.4504 3.38847 15.2529 5.04195C15.3887 5.1696 15.6056 5.16799 15.7393 5.03834L17.0368 3.77487C17.1045 3.70911 17.1422 3.62004 17.1417 3.52735C17.1411 3.43467 17.1023 3.34603 17.0338 3.28104C12.3028 -1.09368 4.83907 -1.09368 0.108056 3.28104C0.039524 3.34598 0.000639766 3.4346 7.82398e-06 3.52728C-0.000624118 3.61996 0.0370483 3.70906 0.104689 3.77487L1.40255 5.03834C1.53615 5.16819 1.75327 5.1698 1.88893 5.04195C3.69167 3.38836 6.08395 2.46628 8.5713 2.46628ZM8.56795 6.68656C9.92527 6.68647 11.2341 7.19821 12.2403 8.12234C12.3763 8.2535 12.5907 8.25065 12.7234 8.11593L14.0106 6.79663C14.0784 6.72742 14.1161 6.63355 14.1151 6.536C14.1141 6.43844 14.0746 6.34536 14.0054 6.27757C10.9416 3.38672 6.19688 3.38672 3.13305 6.27757C3.06384 6.34536 3.02435 6.43849 3.02345 6.53607C3.02254 6.63366 3.06028 6.72752 3.12822 6.79663L4.41513 8.11593C4.54778 8.25065 4.76215 8.2535 4.89823 8.12234C5.90368 7.19882 7.21152 6.68713 8.56795 6.68656ZM11.0924 9.48011C11.0943 9.58546 11.0572 9.68703 10.9899 9.76084L8.81327 12.2156C8.74946 12.2877 8.66247 12.3283 8.5717 12.3283C8.48093 12.3283 8.39394 12.2877 8.33013 12.2156L6.1531 9.76084C6.08585 9.68697 6.04886 9.58537 6.05085 9.48002C6.05284 9.37467 6.09365 9.27491 6.16364 9.20429C7.55374 7.8904 9.58966 7.8904 10.9798 9.20429C11.0497 9.27497 11.0904 9.37476 11.0924 9.48011Z" fill="white"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="13" viewBox="0 0 28 13" fill="none"><rect opacity="0.35" x="0.5" y="0.5" width="24" height="12" rx="3.8" stroke="white"/><path opacity="0.4" d="M26 4.78113V8.8566C26.8047 8.51143 27.328 7.70847 27.328 6.81886C27.328 5.92926 26.8047 5.1263 26 4.78113" fill="white"/><rect x="2" y="2" width="21" height="9" rx="2.5" fill="white"/></svg>
+      </div>
+    </div>
+
+    <div class="phone-screen">
+      <div id="announcer" class="sr-only" aria-live="polite"></div>
+      <div id="l0-layer" class="layer active bg-white" style="overflow-y: auto; pointer-events: auto;">
+        <div id="l0-gradient" style="position: absolute; bottom: 56px; left: 0; width: 100%; height: 50vh; background: radial-gradient(96.77% 100% at 50% 0%, rgba(157, 210, 255, 0.00) 0%, rgba(157, 210, 255, 0.00) 47%, rgba(157, 210, 255, 0.17) 61.22%, rgba(157, 210, 255, 0.37) 74.44%, rgba(157, 210, 255, 0.76) 88%, #9DD2FF 100%); pointer-events: none;"></div>
+        <div id="l0-footer-accent" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 56px; background: #9DD2FF;"></div>
+        <div id="toolbar-header">
+          <div id="apple-toolbar-circle">
+            <svg class="menu-icon-svg" viewBox="0 0 18 8" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="0" width="18" height="1.25" rx="0.625" fill="black"/>
+              <rect x="0" y="6.25" width="18" height="1.25" rx="0.625" fill="black"/>
+            </svg>
+          </div>
+          <div class="gemini-title">Gemini</div>
+          <div class="gemini-version">3 Fast</div>
+          <div class="chevron-down">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 7.5L10 12.5L15 7.5" stroke="rgba(0, 0, 0, 0.55)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div id="right-toolbar-box" aria-label="Tools">
+          <div id="right-box-svg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M22.6893 12.6471C22.6893 12.8541 22.7023 13.0741 22.7023 13.2941C22.7023 20.0106 17.9153 21.7059 11.9996 21.7059C6.0839 21.7059 1.29688 20.1918 1.29688 13.2941C1.29688 7.44472 4.74769 5.46472 9.40498 4.99884" stroke="black" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8.54948 16.5294H8.1084V16.0894C8.1084 14.0318 8.9257 12.0518 10.3916 10.6024L17.9549 3.05766C18.9668 2.04825 20.6143 2.04825 21.6262 3.05766C22.6381 4.06707 22.6381 5.7106 21.6262 6.72001L14.063 14.2647C12.597 15.7271 10.6252 16.5424 8.56245 16.5424L8.54948 16.5294Z" stroke="black" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div id="right-box-dots">
+            <div class="luminous-dot"></div>
+            <div class="luminous-dot"></div>
+            <div class="luminous-dot"></div>
+          </div>
+        </div>
+
+        <div id="l0-middle-content" style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; width: 100%;">
+          <div id="gemini-logo-container" style="display: flex; width: 40px; height: 40px; justify-content: center; align-items: center; flex-shrink: 0; margin-bottom: 12px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <path d="M34.5238 18.035C31.6666 16.805 29.1666 15.1176 27.0228 12.9749C24.8801 10.8322 23.1928 8.33119 21.9628 5.47392C21.4906 4.37886 21.1112 3.25323 20.8203 2.09915C20.7254 1.72183 20.3871 1.45624 19.9982 1.45624C19.6093 1.45624 19.271 1.72183 19.1761 2.09915C18.8852 3.25323 18.5058 4.3778 18.0336 5.47392C16.8037 8.33119 15.1163 10.8322 12.9736 12.9749C10.8309 15.1176 8.32987 16.805 5.47259 18.035C4.37753 18.5071 3.25191 18.8866 2.09782 19.1775C1.72051 19.2723 1.45491 19.6106 1.45491 19.9995C1.45491 20.3885 1.72051 20.7268 2.09782 20.8216C3.25191 21.1125 4.37648 21.4919 5.47259 21.9641C8.32987 23.1941 10.8299 24.8815 12.9736 27.0242C15.1173 29.1669 16.8037 31.6679 18.0336 34.5252C18.5058 35.6202 18.8852 36.7459 19.1761 37.8999C19.271 38.2773 19.6093 38.5429 19.9982 38.5429C20.3871 38.5429 20.7254 38.2773 20.8203 37.8999C21.1112 36.7459 21.4906 35.6213 21.9628 34.5252C23.1928 31.6679 24.8801 29.1679 27.0228 27.0242C29.1655 24.8815 31.6666 23.1941 34.5238 21.9641C35.6189 21.4919 36.7445 21.1125 37.8986 20.8216C38.2759 20.7268 38.5415 20.3885 38.5415 19.9995C38.5415 19.6106 38.2759 19.2723 37.8986 19.1775C36.7445 18.8866 35.62 18.5071 34.5238 18.035Z" fill="white"/>
+              <mask id="mask0_204_6" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="1" y="1" width="38" height="38">
+                <path d="M19.998 1.4563C20.3867 1.4563 20.7252 1.72174 20.8202 2.09888C21.1111 3.25292 21.4906 4.37885 21.9628 5.47388C23.1928 8.33115 24.8807 10.8322 27.0233 12.9749C29.1671 15.1175 31.6671 16.8055 34.5243 18.0354C35.6202 18.5074 36.7445 18.8871 37.8983 19.178C38.2756 19.2728 38.5417 19.6105 38.5419 19.9993C38.5419 20.3882 38.2757 20.7267 37.8983 20.8215C36.7445 21.1124 35.6192 21.4921 34.5243 21.9641C31.6671 23.1941 29.166 24.882 27.0233 27.0247C24.8807 29.1684 23.1928 31.6684 21.9628 34.5256C21.4907 35.6215 21.1111 36.7458 20.8202 37.8997C20.7254 38.277 20.3869 38.5432 19.998 38.5432C19.6092 38.5431 19.2715 38.2769 19.1767 37.8997C18.8858 36.7458 18.5061 35.6205 18.0341 34.5256C16.8042 31.6684 15.1172 29.1673 12.9735 27.0247C10.8298 24.882 8.32984 23.1941 5.47256 21.9641C4.37648 21.492 3.25161 21.1124 2.09756 20.8215C1.72043 20.7266 1.45499 20.3881 1.45499 19.9993C1.45514 19.6106 1.72057 19.2729 2.09756 19.178C3.25157 18.8871 4.37757 18.5075 5.47256 18.0354C8.32984 16.8054 10.8308 15.1175 12.9735 12.9749C15.1162 10.8322 16.8041 8.33115 18.0341 5.47388C18.5062 4.37783 18.8858 3.25288 19.1767 2.09888C19.2716 1.72189 19.6093 1.45644 19.998 1.4563Z" fill="black"/>
+                <path d="M19.998 1.4563C20.3867 1.4563 20.7252 1.72174 20.8202 2.09888C21.1111 3.25292 21.4906 4.37885 21.9628 5.47388C23.1928 8.33115 24.8807 10.8322 27.0233 12.9749C29.1671 15.1175 31.6671 16.8055 34.5243 18.0354C35.6202 18.5074 36.7445 18.8871 37.8983 19.178C38.2756 19.2728 38.5417 19.6105 38.5419 19.9993C38.5419 20.3882 38.2757 20.7267 37.8983 20.8215C36.7445 21.1124 35.6192 21.4921 34.5243 21.9641C31.6671 23.1941 29.166 24.882 27.0233 27.0247C24.8807 29.1684 23.1928 31.6684 21.9628 34.5256C21.4907 35.6215 21.1111 36.7458 20.8202 37.8997C20.7254 38.277 20.3869 38.5432 19.998 38.5432C19.6092 38.5431 19.2715 38.2769 19.1767 37.8997C18.8858 36.7458 18.5061 35.6205 18.0341 34.5256C16.8042 31.6684 15.1172 29.1673 12.9735 27.0247C10.8298 24.882 8.32984 23.1941 5.47256 21.9641C4.37648 21.492 3.25161 21.1124 2.09756 20.8215C1.72043 20.7266 1.45499 20.3881 1.45499 19.9993C1.45514 19.6106 1.72057 19.2729 2.09756 19.178C3.25157 18.8871 4.37757 18.5075 5.47256 18.0354C8.32984 16.8054 10.8308 15.1175 12.9735 12.9749C15.1162 10.8322 16.8041 8.33115 18.0341 5.47388C18.5062 4.37783 18.8858 3.25288 19.1767 2.09888C19.2716 1.72189 19.6093 1.45644 19.998 1.4563Z" fill="url(#paint0_linear_204_6)"/>
+              </mask>
+              <g mask="url(#mask0_204_6)">
+                <g filter="url(#filter0_f_204_6)">
+                  <ellipse cx="8.23351" cy="9.68691" rx="8.23351" ry="9.68691" transform="matrix(0.942341 0.334654 -0.334652 0.942342 -3.16878 9.43784)" fill="#FFE432"/>
+                </g>
+                <g filter="url(#filter1_f_204_6)">
+                  <ellipse cx="17.1323" cy="2.93456" rx="10.6592" ry="10.8935" fill="#FC413D"/>
+                </g>
+                <g filter="url(#filter2_f_204_6)">
+                  <ellipse cx="12.2852" cy="34.2515" rx="11.1402" ry="14.4317" transform="rotate(-2.79865 12.2852 34.2515)" fill="#0EBC5F"/>
+                </g>
+                <g filter="url(#filter3_f_204_6)">
+                  <ellipse cx="12.2852" cy="34.2515" rx="11.1402" ry="14.4317" transform="rotate(-2.79865 12.2852 34.2515)" fill="#0EBC5F"/>
+                </g>
+                <g filter="url(#filter4_f_204_6)">
+                  <ellipse cx="12.8962" cy="33.5796" rx="10.9191" ry="12.0209" transform="rotate(-31.3178 12.8962 33.5796)" fill="#0EBC5F"/>
+                </g>
+                <g filter="url(#filter5_f_204_6)">
+                  <ellipse cx="39.9688" cy="15.9294" rx="10.4847" ry="10.0963" fill="#3983FF"/>
+                </g>
+                <g filter="url(#filter6_f_204_6)">
+                  <ellipse cx="9.20938" cy="9.7137" rx="9.20938" ry="9.7137" transform="matrix(0.795985 0.605316 -0.605314 0.795987 -3.90562 2.0495)" fill="#FEBB00"/>
+                </g>
+                <g filter="url(#filter7_f_204_6)">
+                  <ellipse cx="12.1281" cy="12.7923" rx="12.1281" ry="12.7923" transform="matrix(0.795985 0.605316 -0.605314 0.795987 -0.178452 -2.85187)" fill="#FEC700"/>
+                </g>
+                <g filter="url(#filter8_f_204_6)">
+                  <ellipse cx="13.9836" cy="12.9178" rx="13.9836" ry="12.9178" transform="matrix(0.824033 0.566542 -0.566539 0.824035 24.4227 1.63553)" fill="url(#paint1_linear_204_6)"/>
+                </g>
+                <g filter="url(#filter9_f_204_6)">
+                  <ellipse cx="11.2365" cy="11.8378" rx="3.94118" ry="7.73078" transform="rotate(42.586 11.2365 11.8378)" fill="url(#paint2_linear_204_6)"/>
+                </g>
+                <g filter="url(#filter10_f_204_6)">
+                  <path d="M28.2695 6.29264C29.5234 7.99755 29.268 11.5995 22.5999 14.2579C17.3976 16.3319 12.9655 18.39 13.0833 17.4622C11.6381 17.6323 20.1295 10.4027 20.1295 10.4027C20.1295 10.4027 26.0851 3.32305 28.2695 6.29264Z" fill="url(#paint3_linear_204_6)"/>
+                </g>
+                <g filter="url(#filter11_f_204_6)">
+                  <ellipse cx="12.8288" cy="3.37401" rx="15.9852" ry="9.93686" transform="rotate(-42.848 12.8288 3.37401)" fill="url(#paint4_linear_204_6)"/>
+                </g>
+                <g filter="url(#filter12_f_204_6)">
+                  <ellipse cx="9.21714" cy="28.1731" rx="8.56585" ry="4.98146" transform="rotate(35.592 9.21714 28.1731)" fill="url(#paint5_linear_204_6)"/>
+                </g>
+              </g>
+              <defs>
+                <filter id="filter0_f_204_6" x="-9.87403" y="8.97259" width="22.4446" height="24.698" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="1.40566" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <filter id="filter1_f_204_6" x="-7.11812" y="-21.5502" width="48.5008" height="48.9695" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="6.79562" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <filter id="filter2_f_204_6" x="-10.4183" y="8.27272" width="45.4069" height="51.9576" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="5.77694" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <filter id="filter3_f_204_6" x="-10.4183" y="8.27272" width="45.4069" height="51.9576" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="5.77694" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <filter id="filter4_f_204_6" x="-9.88633" y="10.2902" width="45.565" height="46.5789" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="5.77694" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <filter id="filter5_f_204_6" x="18.5046" y="-5.14646" width="42.9285" height="42.1518" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="5.48978" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <filter id="filter6_f_204_6" x="-17.9159" y="-0.240027" width="30.922" height="31.1922" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="3.03168" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <filter id="filter7_f_204_6" x="-20.6486" y="-7.88653" width="44.7611" height="45.1169" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="5.00227" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <filter id="filter8_f_204_6" x="6.08857" y="-1.95385" width="45.0772" height="44.3128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="4.44316" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <filter id="filter9_f_204_6" x="0.857238" y="1.15466" width="20.7586" height="21.3663" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="2.19797" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <filter id="filter10_f_204_6" x="8.06704" y="0.714345" width="25.6439" height="21.8274" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="2.42534" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <filter id="filter11_f_204_6" x="-7.41795" y="-16.4297" width="40.4935" height="39.6075" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="3.35805" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <filter id="filter12_f_204_6" x="-6.64203" y="13.4369" width="31.7183" height="29.4724" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                  <feGaussianBlur stdDeviation="4.15616" result="effect1_foregroundBlur_204_6"/>
+                </filter>
+                <linearGradient id="paint0_linear_204_6" x1="11.9976" y1="26.2708" x2="31.2601" y2="10.0307" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#3C90FF"/>
+                  <stop offset="0.27" stop-color="#3C90FF"/>
+                  <stop offset="0.776981" stop-color="#969DFF"/>
+                  <stop offset="1" stop-color="#BD99FE"/>
+                </linearGradient>
+                <linearGradient id="paint1_linear_204_6" x1="13.9836" y1="0" x2="13.9836" y2="25.8356" gradientUnits="userSpaceOnUse">
+                  <stop offset="0.75" stop-color="#3186FF"/>
+                  <stop offset="1" stop-color="#00A5B7"/>
+                </linearGradient>
+                <linearGradient id="paint2_linear_204_6" x1="11.2365" y1="4.10703" x2="11.2365" y2="19.5686" gradientUnits="userSpaceOnUse">
+                  <stop offset="0.120192" stop-color="#FF5A59"/>
+                  <stop offset="0.899038" stop-color="#FEC700"/>
+                </linearGradient>
+                <linearGradient id="paint3_linear_204_6" x1="17.8264" y1="10.6272" x2="21.7141" y2="15.1139" gradientUnits="userSpaceOnUse">
+                  <stop offset="0.321566" stop-color="#FE85DF"/>
+                  <stop offset="0.602767" stop-color="#9378FF"/>
+                  <stop offset="0.910378" stop-color="#3186FF"/>
+                </linearGradient>
+                <linearGradient id="paint4_linear_204_6" x1="19.1038" y1="7.29979" x2="-1.54359" y2="10.1673" gradientUnits="userSpaceOnUse">
+                  <stop offset="0.600962" stop-color="#FC413D"/>
+                  <stop offset="1" stop-color="#FF6B2B"/>
+                </linearGradient>
+                <linearGradient id="paint5_linear_204_6" x1="8.23158" y1="25.9399" x2="13.0733" y2="21.6357" gradientUnits="userSpaceOnUse">
+                  <stop offset="0.192308" stop-color="#FFE921"/>
+                  <stop offset="0.8125" stop-color="#88DE42"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div id="greeting-text" style="color: #000; text-align: center; font-family: 'Google Sans Flex', sans-serif; font-size: 32px; font-style: normal; font-weight: 360; line-height: 38px; letter-spacing: 0;">
+            Hi Hugo, what’s on<br>your mind?
+          </div>
+        </div>
+      </div>
+
+      <div id="loading-layer" class="layer">
+        <div class="pulse-animation">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 40 40" fill="none">
+            <path d="M34.5238 18.035C31.6666 16.805 29.1666 15.1176 27.0228 12.9749C24.8801 10.8322 23.1928 8.33119 21.9628 5.47392C21.4906 4.37886 21.1112 3.25323 20.8203 2.09915C20.7254 1.72183 20.3871 1.45624 19.9982 1.45624C19.6093 1.45624 19.271 1.72183 19.1761 2.09915C18.8852 3.25323 18.5058 4.3778 18.0336 5.47392C16.8037 8.33119 15.1163 10.8322 12.9736 12.9749C10.8309 15.1176 8.32987 16.805 5.47259 18.035C4.37753 18.5071 3.25191 18.8866 2.09782 19.1775C1.72051 19.2723 1.45491 19.6106 1.45491 19.9995C1.45491 20.3885 1.72051 20.7268 2.09782 20.8216C3.25191 21.1125 4.37648 21.4919 5.47259 21.9641C8.32987 23.1941 10.8299 24.8815 12.9736 27.0242C15.1173 29.1669 16.8037 31.6679 18.0336 34.5252C18.5058 35.6202 18.8852 36.7459 19.1761 37.8999C19.271 38.2773 19.6093 38.5429 19.9982 38.5429C20.3871 38.5429 20.7254 38.2773 20.8203 37.8999C21.1112 36.7459 21.4906 35.6213 21.9628 34.5252C23.1928 31.6679 24.8801 29.1679 27.0228 27.0242C29.1655 24.8815 31.6666 23.1941 34.5238 21.9641C35.6189 21.4919 36.7445 21.1125 37.8986 20.8216C38.2759 20.7268 38.5415 20.3885 38.5415 19.9995C38.5415 19.6106 38.2759 19.2723 37.8986 19.1775C36.7445 18.8866 35.62 18.5071 34.5238 18.035Z" fill="white"/>
+            <mask id="mask_load" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="1" y="1" width="38" height="38">
+              <path d="M19.998 1.4563C20.3867 1.4563 20.7252 1.72174 20.8202 2.09888C21.1111 3.25292 21.4906 4.37885 21.9628 5.47388C23.1928 8.33115 24.8807 10.8322 27.0233 12.9749C29.1671 15.1175 31.6671 16.8055 34.5243 18.0354C35.6202 18.5074 36.7445 18.8871 37.8983 19.178C38.2756 19.2728 38.5417 19.6105 38.5419 19.9993C38.5419 20.3882 38.2757 20.7267 37.8983 20.8215C36.7445 21.1124 35.6192 21.4921 34.5243 21.9641C31.6671 23.1941 29.166 24.882 27.0233 27.0247C24.8807 29.1684 23.1928 31.6684 21.9628 34.5256C21.4907 35.6215 21.1111 36.7458 20.8202 37.8997C20.7254 38.277 20.3869 38.5432 19.998 38.5432C19.6092 38.5431 19.2715 38.2769 19.1767 37.8997C18.8858 36.7458 18.5061 35.6205 18.0341 34.5256C16.8042 31.6684 15.1172 29.1673 12.9735 27.0247C10.8298 24.882 8.32984 23.1941 5.47256 21.9641C4.37648 21.492 3.25161 21.1124 2.09756 20.8215C1.72043 20.7266 1.45499 20.3881 1.45499 19.9993C1.45514 19.6106 1.72057 19.2729 2.09756 19.178C3.25157 18.8871 4.37757 18.5075 5.47256 18.0354C8.32984 16.8054 10.8308 15.1175 12.9735 12.9749C15.1162 10.8322 16.8041 8.33115 18.0341 5.47388C18.5062 4.37783 18.8858 3.25288 19.1767 2.09888C19.2716 1.72189 19.6093 1.45644 19.998 1.4563Z" fill="black"/>
+            </mask>
+            <g mask="url(#mask_load)">
+              <g filter="url(#f0_load)"><ellipse cx="8.23" cy="9.69" rx="8.23" ry="9.69" transform="matrix(0.94 0.33 -0.33 0.94 -3.17 9.44)" fill="#FFE432"/></g>
+              <g filter="url(#f1_load)"><ellipse cx="17.13" cy="2.93" rx="10.66" ry="10.89" fill="#FC413D"/></g>
+              <g filter="url(#f2_load)"><ellipse cx="12.29" cy="34.25" rx="11.14" ry="14.43" transform="rotate(-2.8 12.29 34.25)" fill="#0EBC5F"/></g>
+              <g filter="url(#f5_load)"><ellipse cx="39.97" cy="15.93" rx="10.48" ry="10.1" fill="#3983FF"/></g>
+              <g filter="url(#f6_load)"><ellipse cx="9.21" cy="9.71" rx="9.21" ry="9.71" transform="matrix(0.8 0.61 -0.61 0.8 -3.91 2.05)" fill="#FEBB00"/></g>
+              <g filter="url(#f8_load)"><ellipse cx="13.98" cy="12.92" rx="13.98" ry="12.92" transform="matrix(0.82 0.57 -0.57 0.82 24.42 1.64)" fill="url(#p1_load)"/></g>
+            </g>
+            <defs>
+              <filter id="f0_load" x="-9.87" y="8.97" width="22.44" height="24.7" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="1.4"/></filter>
+              <filter id="f1_load" x="-7.12" y="-21.55" width="48.5" height="48.97" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="6.8"/></filter>
+              <filter id="f2_load" x="-10.42" y="8.27" width="45.41" height="51.96" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="5.8"/></filter>
+              <filter id="f5_load" x="18.5" y="-5.15" width="42.93" height="42.15" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="5.5"/></filter>
+              <filter id="f6_load" x="-17.92" y="-0.24" width="30.92" height="31.19" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="3.0"/></filter>
+              <filter id="f8_load" x="6.09" y="-1.95" width="45.08" height="44.31" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="4.4"/></filter>
+              <linearGradient id="p1_load" x1="13.98" y1="0" x2="13.98" y2="25.84" gradientUnits="userSpaceOnUse"><stop offset="0.75" stop-color="#3186FF"/><stop offset="1" stop-color="#00A5B7"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+
+      <div id="canvas-container" class="layer"><div id="grid-background"></div><div id="l1-cards-layer"></div></div>
+      <div id="detail-page" class="layer"><div id="l2-grid"></div></div>
+      <div id="product-detail-page" class="layer"><div id="pdp-carousel-wrap" class="flex h-full"></div></div>
+      <button id="mix-btn">Mix</button>
+      <button id="expand-bottom" class="expand-btn">Expand ↓</button>
+      <div id="chat-bar-container">
+        <div id="chat-bar-glow"></div>
+        <div id="chat-bar">
+          <div id="chat-plus-icon" class="cursor-pointer hover:scale-110 transition-transform"><svg viewBox="0 0 18 18"><path d="M9 0V18M0 9H18" stroke="white" stroke-width="2"/></svg></div>
+          <div id="chat-bar-label">Ask Gemini</div>
+          <input type="text" id="search-input">
+          <div id="search-icons-group">
+            <div id="mic-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="8.16699" y="2.33344" width="7" height="12.8333" rx="3.5" stroke="white" stroke-width="1.16667"/><path d="M11.667 18.6667C11.667 19.2487 11.667 20.2211 11.667 20.9976" stroke="white" stroke-width="1.16667" stroke-linecap="round"/><path d="M18.667 11.6667C18.667 15.5327 15.533 18.6667 11.667 18.6667C7.801 18.6667 4.66699 15.5327 4.66699 11.6667" stroke="white" stroke-width="1.16667" stroke-linecap="round"/></svg></div>
+            <div id="search-trigger"><svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="9.4" stroke="white" stroke-width="1.2"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = { products: [], selectedIds: [], zoom: 0.3, panX: 0, panY: 0, isPanning: false, hasMoved: false, isTransitioning: false, activeLayer: 'L0', reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches, gridCols: 30, gridRows: 50 };
+    const searchInput = document.getElementById('search-input'), searchBtn = document.getElementById('search-trigger'), l0Layer = document.getElementById('l0-layer'), loadingLayer = document.getElementById('loading-layer'), l1Layer = document.getElementById('canvas-container'), l1Cards = document.getElementById('l1-cards-layer'), gridBg = document.getElementById('grid-background'), l2Layer = document.getElementById('detail-page'), l2Grid = document.getElementById('l2-grid'), l3Layer = document.getElementById('product-detail-page'), l3Carousel = document.getElementById('pdp-carousel-wrap'), mixBtn = document.getElementById('mix-btn'), chatLabel = document.getElementById('chat-bar-label'), plusBtn = document.getElementById('chat-plus-icon'), announcer = document.getElementById('announcer');
+    const expandBottom = document.getElementById('expand-bottom');
+
+    searchInput.addEventListener('input', () => { if (searchInput.value.length > 0) chatLabel.style.display = 'none'; else chatLabel.style.display = 'block'; });
+    searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchBtn.click(); });
+
+    plusBtn.onclick = () => {
+      if (state.activeLayer === 'L0') return;
+      if (state.isTransitioning) return; state.isTransitioning = true;
+      searchInput.value = '';
+      chatLabel.style.display = 'block';
+      l0Layer.classList.add('active');
+      l1Layer.classList.remove('active');
+      l2Layer.classList.remove('active');
+      l3Layer.classList.remove('active');
+      loadingLayer.classList.remove('active');
+      l1Layer.style.opacity = '0';
+      state.activeLayer = 'L0';
+      announcer.textContent = 'Returned to entrance.';
+      setTimeout(() => { state.isTransitioning = false; }, 800);
+    };
+
+    expandBottom.onclick = () => expandGrid('bottom');
+
+    function expandGrid(direction) {
+      if (state.isTransitioning || state.products.length === 0) return;
+      state.isTransitioning = true;
+      announcer.textContent = 'Expanding grid ' + direction + '...';
+
+      // Identify an anchor product to maintain visual focus
+      const anchorProduct = state.products[0];
+      const anchorOldX = anchorProduct.x;
+      const anchorOldY = anchorProduct.y;
+      const oldScreenX = (anchorOldX * state.zoom) + state.panX;
+      const oldScreenY = (anchorOldY * state.zoom) + state.panY;
+
+      const newProducts = generateProducts(searchInput.value || 'Discovery', 100);
+
+      if (direction === 'bottom') {
+        state.products = state.products.concat(newProducts);
+        state.gridRows += 10;
+      }
+
+      renderL1(); 
+
+      state.panX = oldScreenX - (anchorProduct.x * state.zoom);
+      state.panY = oldScreenY - (anchorProduct.y * state.zoom);
+
+      updateTransform();
+      setTimeout(() => { state.isTransitioning = false; updateTransform(); }, 400);
+    }
+
+    function generateProducts(query, count = 400) {
+      const normalizedQuery = query.toLowerCase().trim(), items = [];
+      for (let i = 0; i < count; i++) items.push({ id: i, name: `Premium ${query} ${i + 1}`, price: Math.floor(Math.random() * 800) + 120, rating: (Math.random() * 1.5 + 3.5).toFixed(1), img: `https://picsum.photos/seed/${i + normalizedQuery}/1200/1200`, x: 0, y: 0, w: 0, h: 0 });
+      return items;
+    }
+
+    function renderL1() {
+      l1Cards.innerHTML = ''; const baseSize = 220, gap = 24;
+      const columns = state.gridCols, rows = state.gridRows; 
+      let maxX = 0, maxY = 0;
+      const grid = Array(rows).fill().map(() => Array(columns).fill(false));
+      state.products.forEach((p, i) => {
+        const findSpot = (prefType) => {
+          let wm = 1, hm = 1; if (prefType === '2x2') { wm = 2; hm = 2; } else if (prefType === '2x1') { wm = 2; hm = 1; } else if (prefType === '1x2') { wm = 1; hm = 2; }
+          for (let r = 0; r <= rows - hm; r++) for (let c = 0; c <= columns - wm; c++) {
+            let clear = true; for (let dr = 0; dr < hm; dr++) for (let dc = 0; dc < wm; dc++) if (grid[r+dr][c+dc]) clear = false;
+            if (clear) return { r, c, wm, hm };
+          }
+          return null;
+        };
+        let spot = findSpot(i % 15 === 0 ? '2x2' : (i % 8 === 0 ? '2x1' : (i % 6 === 0 ? '1x2' : '1x1'))) || findSpot('1x1');
+        if (!spot) return;
+        for (let dr = 0; dr < spot.hm; dr++) for (let dc = 0; dc < spot.wm; dc++) grid[spot.r+dr][spot.c+dc] = true;
+        p.x = spot.c * (baseSize + gap); p.y = spot.r * (baseSize + gap); p.w = (baseSize * spot.wm) + (gap * (spot.wm - 1)); p.h = (baseSize * spot.hm) + (gap * (spot.hm - 1));
+        
+        maxX = Math.max(maxX, p.x + p.w);
+        maxY = Math.max(maxY, p.y + p.h);
+
+        const card = document.createElement('div'); card.className = 'product-card-l1 border border-black/5 rounded-[40px] overflow-hidden shadow-2xl hover:z-50 cursor-pointer'; card.style.cssText = `width:${p.w}px; height:${p.h}px; left:${p.x}px; top:${p.y}px;`;
+        card.innerHTML = `<img src="${p.img}" class="w-full h-full object-cover transition-all duration-700">`;
+        let pressTimer;
+        const startPress = (e) => { 
+          if (state.activeLayer !== 'L1') return; 
+          if (e.touches && e.touches.length > 1) { cancelPress(); return; }
+          card.style.transitionDuration = '1000ms'; 
+          card.style.boxShadow = '0 0 0 8px var(--accent), 0 0 30px var(--accent-glow)'; 
+          card.style.borderColor = 'var(--accent)'; 
+          pressTimer = setTimeout(() => { 
+            triggerSimilarityWave(p); 
+            card.style.transitionDuration = '200ms'; 
+            if (!state.selectedIds.includes(p.id)) { 
+              card.style.boxShadow = 'none'; 
+              card.style.borderColor = 'rgba(0,0,0,0.05)'; 
+            } else { 
+              card.style.boxShadow = '0 0 0 2px var(--accent), 0 0 20px var(--accent-glow)'; 
+            } 
+          }, 1000); 
+        };
+        const cancelPress = () => { 
+          clearTimeout(pressTimer); 
+          card.style.transitionDuration = '200ms'; 
+          if (!state.selectedIds.includes(p.id)) { 
+            card.style.boxShadow = 'none'; 
+            card.style.borderColor = 'rgba(0,0,0,0.05)'; 
+          } else { 
+            card.style.boxShadow = '0 0 0 2px var(--accent), 0 0 20px var(--accent-glow)'; 
+            card.style.borderColor = 'var(--accent)'; 
+          } 
+        };
+        card.onmousedown = startPress; card.onmouseup = cancelPress; card.onmouseleave = cancelPress; 
+        card.addEventListener('touchstart', startPress, {passive: true});
+        card.addEventListener('touchend', cancelPress, {passive: true});
+        card.addEventListener('touchmove', cancelPress, {passive: true});
+        
+        card.onclick = (e) => { 
+          e.stopPropagation(); 
+          if (state.hasMoved) return;
+          const idx = state.selectedIds.indexOf(p.id); 
+          if (idx > -1) { 
+            state.selectedIds.splice(idx, 1); 
+            card.style.borderColor = 'rgba(0,0,0,0.05)'; 
+            card.style.boxShadow = 'none'; 
+          } else if (state.selectedIds.length < 2) { 
+            state.selectedIds.push(p.id); 
+            card.style.borderColor = 'var(--accent)'; 
+            card.style.boxShadow = '0 0 0 2px var(--accent), 0 0 20px var(--accent-glow)'; 
+          } 
+          if (state.selectedIds.length === 2) mixBtn.classList.add('visible'); 
+          else mixBtn.classList.remove('visible'); 
+        };
+        l1Cards.appendChild(card);
+      });
+
+      state.contentWidth = maxX + 50;
+      state.contentHeight = maxY + 50;
+      const boundary = document.createElement('div'); boundary.style.cssText = `position:absolute; width:${state.contentWidth + 50}px; height:${state.contentHeight + 50}px; left:-50px; top:-50px; border:2px solid rgba(0,0,0,0.05); border-radius:60px; pointer-events:none;`;
+      l1Cards.appendChild(boundary);
+    }
+
+    function renderL2(products) {
+      l2Grid.innerHTML = ''; l2Grid.className = 'flex gap-3 px-3 w-full'; 
+      const col1 = document.createElement('div'), col2 = document.createElement('div'); 
+      col1.className = 'flex flex-col gap-5 flex-1';
+      col2.className = 'flex flex-col gap-5 flex-1';
+      l2Grid.appendChild(col1); l2Grid.appendChild(col2);
+
+      products.forEach((p, i) => {
+        const item = document.createElement('div'); item.className = 'flex flex-col cursor-pointer group'; item.setAttribute('data-id', p.id);
+        const isLeft = i % 2 === 0, rowIdx = Math.floor(i / 2);
+        let h; if (isLeft) { h = (rowIdx % 2 === 0) ? 280 : 194; } else { h = (rowIdx % 2 === 0) ? 194 : 280; }
+        
+        const brands = ['Nike', 'Adidas', 'Zara', 'Gucci', 'Prada'];
+        const brand = brands[p.id % brands.length];
+        const reviews = (Math.random() * 5).toFixed(1) + 'k';
+
+        item.innerHTML = `
+          <div style="height:${h}px; width:100%; position:relative;" class="rounded-[40px] overflow-hidden border border-black/5 shadow-sm transition-transform group-hover:scale-[1.01]">
+            <img src="${p.img}" class="w-full h-full object-cover">
+            <div style="position:absolute; left: 50%; transform: translateX(-50%); bottom:0; height: 30px; display: flex; align-items: flex-end; gap: 4px;">
+               <div style="margin-bottom: 10px;"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="5.5" fill="#636363"/></svg></div>
+               <div style="margin-bottom: 12.5px; display: flex; gap: 4px;">
+                 <svg width="6" height="6" viewBox="0 0 6 6" fill="none"><circle cx="3" cy="3" r="3" fill="#D9D9D9"/></svg>
+                 <svg width="6" height="6" viewBox="0 0 6 6" fill="none"><circle cx="3" cy="3" r="3" fill="#D9D9D9"/></svg>
+                 <svg width="6" height="6" viewBox="0 0 6 6" fill="none"><circle cx="3" cy="3" r="3" fill="#D9D9D9"/></svg>
+                 <svg width="6" height="6" viewBox="0 0 6 6" fill="none"><circle cx="3" cy="3" r="3" fill="#D9D9D9"/></svg>
+               </div>
+            </div>
+          </div>
+          <div style="margin-top: 10px; padding-left: 9px;" class="flex flex-col">
+            <div style="overflow: hidden; color: #000; text-overflow: ellipsis; white-space: nowrap; font-family: 'Google Sans', sans-serif; font-size: 14px; font-weight: 500; line-height: 20px;">${p.name}</div>
+            <div style="margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+              <span style="color: #000; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400; line-height: 17px;">$${p.price}</span>
+              <span style="color: rgba(0, 0, 0, 0.55); font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400; line-height: 17px;">·</span>
+              <span style="overflow: hidden; color: rgba(0, 0, 0, 0.55); text-overflow: ellipsis; white-space: nowrap; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400; line-height: 17px;">${brand}</span>
+            </div>
+            <div style="margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+              <span style="color: #000; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400; line-height: 17px;">${p.rating}</span>
+              <span class="material-symbols-outlined" style="color: #000; font-size: 18px; font-weight: 350; line-height: 1;">star</span>
+              <span style="color: rgba(0, 0, 0, 0.55); font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400; line-height: 17px;">(${reviews})</span>
+            </div>
+          </div>
+        `;
+        item.onclick = () => showL3(p);
+        if (isLeft) col1.appendChild(item); else col2.appendChild(item);
+      });
+    }
+
+    function renderL3(product) {
+      l3Carousel.innerHTML = ''; state.products.forEach(p => {
+        const item = document.createElement('div'); item.className = 'w-full h-full flex-shrink-0 flex flex-col items-center justify-center p-8 scroll-snap-align-start'; item.style.scrollSnapAlign = 'start'; item.setAttribute('data-id', p.id);
+        item.innerHTML = `<div class="w-full h-3/5 rounded-[48px] shadow-2xl mb-10 overflow-hidden"><img src="${p.img}" class="w-full h-full object-cover"></div><div class="text-left w-full px-4"><h1 class="text-4xl font-black mb-2 tracking-tighter text-black">${p.name}</h1><div class="text-blue-400 text-3xl font-black mb-6">$${p.price}</div><div class="flex items-center gap-3 mb-8"><span class="bg-blue-400/20 text-blue-400 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest">★ ${p.rating}</span></div><p class="text-black/50 text-lg leading-relaxed font-semibold">Flagship sequence discovery.</p></div>`;
+        l3Carousel.appendChild(item);
+      });
+      l3Layer.scrollLeft = state.products.findIndex(p => p.id === product.id) * l3Layer.offsetWidth;
+    }
+
+    function triggerSimilarityWave(centerProduct) {
+      const threshold = 750; state.products.forEach((p, idx) => {
+        const dx = (p.x + p.w/2) - (centerProduct.x + centerProduct.w/2), dy = (p.y + p.h/2) - (centerProduct.y + centerProduct.h/2), dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist > 0 && dist < threshold) {
+          const cards = Array.from(l1Cards.querySelectorAll('.product-card-l1')), card = cards[idx];
+          if (card) {
+            const img = card.querySelector('img'); img.style.filter = 'brightness(3) blur(20px)';
+            const freshSeed = Date.now() + Math.random(), safeName = encodeURIComponent(centerProduct.name.split('#')[0].trim()), newImgUrl = `https://picsum.photos/seed/${freshSeed}/1200/1200`;
+            const preload = new Image(); preload.onload = () => { p.img = newImgUrl; img.src = newImgUrl; img.style.filter = 'brightness(1) blur(0)'; }; preload.src = newImgUrl;
+          }
+        }
+      });
+    }
+
+    function updateTransform() {
+      const sw = window.innerWidth, sh = window.innerHeight, cw = state.contentWidth, ch = state.contentHeight, m = 0;
+      state.panX = Math.min(m, Math.max(state.panX, sw - (cw * state.zoom) - m)); state.panY = Math.min(m, Math.max(state.panY, sh - (ch * state.zoom) - m));
+      l1Layer.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
+
+      // Expansion triggers visibility
+      if (state.activeLayer === 'L1' && !state.isTransitioning) {
+        const threshold = 80;
+        const nearBottom = state.panY < sh - (ch * state.zoom) + threshold;
+        expandBottom.classList.toggle('visible', nearBottom);
+      } else {
+        expandBottom.classList.remove('visible');
+      }
+    }
+
+    let lastTouchDistance = 0;
+    let touchStartX, touchStartY;
+    let initialTouchX, initialTouchY;
+
+    l1Layer.addEventListener('touchstart', (e) => {
+      if (state.activeLayer !== 'L1' || state.isTransitioning) return;
+      if (e.touches.length === 1) {
+        state.isPanning = true;
+        state.hasMoved = false;
+        initialTouchX = e.touches[0].clientX;
+        initialTouchY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX - state.panX;
+        touchStartY = e.touches[0].clientY - state.panY;
+      } else if (e.touches.length === 2) {
+        state.isPanning = false;
+        lastTouchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: false });
+
+    l1Layer.addEventListener('touchmove', (e) => {
+      if (state.activeLayer !== 'L1' || state.isTransitioning) return;
+      e.preventDefault();
+
+      if (e.touches.length === 1 && state.isPanning) {
+        const dx = e.touches[0].clientX - initialTouchX;
+        const dy = e.touches[0].clientY - initialTouchY;
+        if (Math.hypot(dx, dy) > 10) state.hasMoved = true;
+
+        state.panX = e.touches[0].clientX - touchStartX;
+        state.panY = e.touches[0].clientY - touchStartY;
+        requestAnimationFrame(updateTransform);
+      } else if (e.touches.length === 2) {
+        const distance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        
+        const rect = document.querySelector('.phone-screen').getBoundingClientRect();
+        const mx = centerX - rect.left;
+        const my = centerY - rect.top;
+
+        if (lastTouchDistance > 0) {
+          const ratio = distance / lastTouchDistance;
+          const oz = state.zoom;
+          state.zoom = Math.max(0.36, Math.min(3.0, state.zoom * ratio));
+          state.panX = mx - (mx - state.panX) * (state.zoom / oz);
+          state.panY = my - (my - state.panY) * (state.zoom / oz);
+          
+          if (state.zoom >= 1.2 && !state.isTransitioning) {
+            const wx = (mx - state.panX) / state.zoom, wy = (my - state.panY) / state.zoom;
+            const target = state.products.find(p => wx >= p.x && wx <= p.x + p.w && wy >= p.y && wy <= p.y + p.h);
+            if (target) showL2(target);
+          }
+        }
+        lastTouchDistance = distance;
+        requestAnimationFrame(updateTransform);
+      }
+    }, { passive: false });
+
+    l1Layer.addEventListener('touchend', () => {
+      state.isPanning = false;
+      lastTouchDistance = 0;
+    });
+
+    // Keep mouse/wheel for desktop but simplify
+    l1Layer.onmousedown = (e) => { if (state.activeLayer !== 'L1') return; state.isPanning = true; touchStartX = e.clientX - state.panX; touchStartY = e.clientY - state.panY; };
+    window.onmousemove = (e) => { if (!state.isPanning) return; state.panX = e.clientX - touchStartX; state.panY = e.clientY - touchStartY; requestAnimationFrame(updateTransform); };
+    window.onmouseup = () => state.isPanning = false;
+
+    l1Layer.onwheel = (e) => {
+      if (state.activeLayer !== 'L1') return; e.preventDefault();
+      const rect = document.querySelector('.phone-screen').getBoundingClientRect(), mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      if (e.ctrlKey) {
+        const oz = state.zoom; 
+        state.zoom = Math.max(0.36, Math.min(3.0, state.zoom - e.deltaY * 0.005));
+        state.panX = mx - (mx - state.panX) * (state.zoom / oz); state.panY = my - (my - state.panY) * (state.zoom / oz);
+        if (state.zoom >= 1.2 && !state.isTransitioning) {
+          const wx = (mx - state.panX) / state.zoom, wy = (my - state.panY) / state.zoom;
+          showL2(state.products.find(p => wx >= p.x && wx <= p.x + p.w && wy >= p.y && wy <= p.y + p.h));
+        }
+      } else { state.panX -= e.deltaX; state.panY -= e.deltaY; }
+      requestAnimationFrame(updateTransform);
+    };
+
+    l2Layer.addEventListener('touchstart', (e) => {
+      if (state.activeLayer !== 'L2' || state.isTransitioning) return;
+      if (e.touches.length === 2) {
+        lastTouchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    l2Layer.addEventListener('touchmove', (e) => {
+      if (state.activeLayer !== 'L2' || state.isTransitioning) return;
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const distance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        if (lastTouchDistance > 0) {
+          const ratio = distance / lastTouchDistance;
+          if (ratio < 0.7) { 
+            hideL2();
+            lastTouchDistance = 0;
+          } else if (ratio > 1.4) { 
+             const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+             const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+             const rect = l2Layer.getBoundingClientRect();
+             const mx = centerX - rect.left;
+             const my = centerY - rect.top + l2Layer.scrollTop;
+             const focused = Array.from(l2Grid.querySelectorAll('[data-id]')).find(item => {
+               const r = item.getBoundingClientRect();
+               const ry = r.top - rect.top + l2Layer.scrollTop;
+               const rx = r.left - rect.left;
+               return mx >= rx && mx <= rx + r.width && my >= ry && my <= ry + r.height;
+             });
+             if (focused) {
+               showL3(state.products.find(p => p.id === parseInt(focused.getAttribute('data-id'))));
+               lastTouchDistance = 0;
+             }
+          }
+        }
+      }
+    }, { passive: false });
+
+    l3Layer.addEventListener('touchstart', (e) => {
+      if (state.activeLayer !== 'L3' || state.isTransitioning) return;
+      if (e.touches.length === 2) {
+        lastTouchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    l3Layer.addEventListener('touchmove', (e) => {
+      if (state.activeLayer !== 'L3' || state.isTransitioning) return;
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const distance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        if (lastTouchDistance > 0) {
+          const ratio = distance / lastTouchDistance;
+          if (ratio < 0.7) { 
+            hideL3();
+            lastTouchDistance = 0;
+          }
+        }
+      }
+    }, { passive: false });
+
+    l2Layer.onwheel = (e) => {
+      if (state.activeLayer !== 'L2') return;
+      if (e.ctrlKey) {
+        e.preventDefault(); if (e.deltaY > 0) hideL2();
+        else if (e.deltaY < 0) {
+          const rect = l2Layer.getBoundingClientRect(), mx = e.clientX - rect.left, my = e.clientY - rect.top + l2Layer.scrollTop;
+          const focused = Array.from(l2Grid.querySelectorAll('[data-id]')).find(item => { const r = item.getBoundingClientRect(); const ry = r.top - rect.top + l2Layer.scrollTop, rx = r.left - rect.left; return mx >= rx && mx <= rx + r.width && my >= ry && my <= ry + r.height; });
+          showL3(state.products.find(p => p.id === (focused ? parseInt(focused.getAttribute('data-id')) : 0)));
+        }
+      }
+    };
+    l3Layer.onwheel = (e) => { if (state.activeLayer !== 'L3') return; if (e.ctrlKey && e.deltaY > 0) { e.preventDefault(); hideL3(); } };
+
+    function showL2(product = null) {
+      if (state.isTransitioning) return; state.isTransitioning = true; state.activeLayer = 'L2';
+      renderL2(state.products); l2Layer.style.scrollBehavior = 'auto';
+      if (product) { const target = l2Grid.querySelector(`[data-id="${product.id}"]`); if (target) l2Layer.scrollTop = (target.offsetTop + target.parentElement.offsetTop) - 100; } else l2Layer.scrollTop = 0;
+      l2Layer.classList.add('active'); l1Layer.style.opacity = '0';
+      setTimeout(() => { state.isTransitioning = false; l2Layer.style.scrollBehavior = 'smooth'; }, 800);
+    }
+    function hideL2() { if (state.isTransitioning) return; state.isTransitioning = true; state.activeLayer = 'L1'; state.zoom = 0.5; l2Layer.classList.remove('active'); l1Layer.style.opacity = '1'; setTimeout(() => { state.isTransitioning = false; updateTransform(); }, 800); }
+    function showL3(product) { if (state.isTransitioning) return; state.isTransitioning = true; state.activeLayer = 'L3'; renderL3(product); l3Layer.classList.add('active'); setTimeout(() => state.isTransitioning = false, 600); }
+    function hideL3() { if (state.isTransitioning) return; state.isTransitioning = true; state.activeLayer = 'L2'; l3Layer.classList.remove('active'); setTimeout(() => state.isTransitioning = false, 600); }
+
+    function centerCamera() {
+      const sw = window.innerWidth, sh = window.innerHeight;
+      state.panX = (sw - (state.contentWidth * state.zoom)) / 2;
+      state.panY = (sh - (state.contentHeight * state.zoom)) / 2;
+    }
+
+    function showL1() {
+      if (state.isTransitioning) return; state.isTransitioning = true;
+      
+      // Phase 1: Fade out L0 and show Loading
+      l0Layer.classList.remove('active');
+      loadingLayer.classList.add('active');
+      announcer.textContent = 'Searching...';
+
+      setTimeout(() => {
+        // Phase 2: Reveal Results (L1)
+        state.gridCols = 15; state.gridRows = 25;
+        state.products = generateProducts(searchInput.value || 'Vision', 100);
+        renderL1();
+        state.zoom = 0.5;
+        centerCamera();
+        updateTransform();
+        
+        loadingLayer.classList.remove('active');
+        l1Layer.classList.add('active');
+        l1Layer.style.opacity = '1';
+        state.activeLayer = 'L1';
+        announcer.textContent = 'Showing results for ' + (searchInput.value || 'Vision');
+        
+        setTimeout(() => { state.isTransitioning = false; }, 800);
+      }, 2000); // 2 second intentional delay
+    }
+
+    searchBtn.onclick = () => {
+      if (state.activeLayer === 'L0') showL1();
+      else {
+        state.gridCols = 15; state.gridRows = 25;
+        state.products = generateProducts(searchInput.value || 'Vision', 100);
+        renderL1();
+        state.zoom = 0.5;
+        centerCamera();
+        updateTransform();
+      }
+    };
+    searchBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      searchBtn.onclick();
+    }, {passive: false});
+  </script>
+</body>
+</html>
